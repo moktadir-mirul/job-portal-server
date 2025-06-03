@@ -22,7 +22,14 @@ const client = new MongoClient(uri, {
 async function run () {
     try {
     await client.connect();
+    
+    const jobsCollection = client.db("jobsDB").collection('jobsCollection');
 
+    app.get("/jobs", async(req, res) => {
+      const result = await jobsCollection.find().toArray();
+      console.log(result)
+      res.send(result)
+    })
     
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
