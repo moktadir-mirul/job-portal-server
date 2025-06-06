@@ -35,6 +35,13 @@ async function run () {
       const result = await jobsCollection.findOne(query);
       res.send(result);
     })
+
+    app.post("/jobs", async(req, res) => {
+      const newJob = req.body;
+      const result = await jobsCollection.insertOne(newJob);
+      console.log(result);
+      res.send(result)
+    })
     
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
