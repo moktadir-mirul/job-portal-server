@@ -35,6 +35,19 @@ async function run () {
       const result = await jobsCollection.find(query).toArray();
       res.send(result)
     })
+
+    app.get("/jobs/applications", async(req, res) => {
+      const email = req.query.email;
+      const query = {hr_email : email};
+      const jobs = await jobsCollection.find(query).toArray();
+
+      for (const job of jobs) {
+        const applicationQuery = {jobId : job._id.toString()};
+        const applicationCount = await applicationsCollection.countDocuments(applicationQuery);
+        job.application_count = applicationCount;
+      }
+      res.send(jobs);
+    })
     app.get("/jobs/:id", async(req, res) => {
       const id = req.params.id;
       const query = {_id : new ObjectId(id)};
@@ -80,6 +93,22 @@ async function run () {
     app.post("/applications", async(req, res) => {
       const doc = req.body;
       const result = await applicationsCollection.insertOne(doc);
+      console.log(result);
+      res.send(result);
+    })
+
+    app.patch("/applications/:id", async(req, res) => {
+      const updated = req.body;
+      const id = req.params.id;
+      console.log(updated, id)
+      const filter = {_id : new ObjectId(id)};
+      const updatedDoc = {
+        $set: {
+          status : updated
+        }
+      } 
+
+      const result = await applicationsCollection.updateOne(filter, updatedDoc);
       console.log(result);
       res.send(result);
     })
