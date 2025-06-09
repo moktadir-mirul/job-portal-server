@@ -27,7 +27,12 @@ async function run () {
     const applicationsCollection = client.db("jobsDB").collection("applicationCollection");
 
     app.get("/jobs", async(req, res) => {
-      const result = await jobsCollection.find().toArray();
+      const hrEmail = req.query.email;
+      let query = {};
+      if(hrEmail) {
+         query = {hr_email : hrEmail}
+      }
+      const result = await jobsCollection.find(query).toArray();
       res.send(result)
     })
     app.get("/jobs/:id", async(req, res) => {
@@ -62,6 +67,14 @@ async function run () {
         application.logo = job.company_logo;
       }
       res.send(result); 
+    })
+
+    app.get("/applications/job/:job_id", async(req, res) => {
+      const job_id = req.params.job_id;
+      const query = { jobId : job_id }
+      const result = await applicationsCollection.find(query).toArray();
+      console.log(result);
+      res.send(result);
     })
 
     app.post("/applications", async(req, res) => {
