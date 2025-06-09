@@ -47,10 +47,20 @@ async function run () {
     // Application api
 
     app.get("/applications", async(req,res) => {
-      const email = req.query.email;
-      const query = {applicant : email }
+      const singleEmail = req.query.email;
+      let query = {};
+      if(singleEmail) {
+        query = { email : singleEmail}
+      }
       const result = await applicationsCollection.find(query).toArray();
-      console.log(result);
+      for(let application of result) {
+        const jobId = application.jobId;
+        const query = {_id : new ObjectId(jobId)};
+        const job = await jobsCollection.findOne(query);
+        application.company = job.company;
+        application.title = job.title;
+        application.logo = job.company_logo;
+      }
       res.send(result); 
     })
 
